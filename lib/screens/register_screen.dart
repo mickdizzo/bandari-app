@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/primary_button.dart';
-import 'course_type_selection_screen.dart';
+import 'Course_Module_Screen.dart';
 import 'login_sceen.dart';
+import 'create_course_module.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/primary_button.dart';
-import 'course_type_selection_screen.dart';
-import 'register_screen.dart'; // we'll create next
+import 'Course_Module_Screen.dart';
+import 'register_screen.dart';
+import 'create_course_module.dart';// we'll create next
 
 
 class LoginScreen extends StatefulWidget {

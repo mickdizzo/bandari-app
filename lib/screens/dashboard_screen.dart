@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'timetable_screen.dart';
+import 'profile_screen.dart';
+import 'results_screen.dart';
+import 'payment_details_screen.dart';
+import 'Course_Module_Screen.dart';
+
+
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
@@ -26,6 +33,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isLongCourse = _courseType == 'long';
+    final bool isShortCourse = _courseType == 'short';
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Bandari Dashboard"),
@@ -34,16 +44,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.person),
+            tooltip: 'Profile',
             onPressed: () {
-              // TODO: Go to Profile screen
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ProfileScreen()),
+              );
             },
           ),
         ],
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          // TODO: Fetch fresh data from API later
+          // You can add real refresh logic here later (API calls)
           await Future.delayed(const Duration(seconds: 1));
+          if (mounted) {
+            setState(() {}); // just to trigger rebuild for demo
+          }
         },
         child: ListView(
           padding: const EdgeInsets.all(16.0),
@@ -66,7 +83,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      "You're viewing as $_courseType course student",
+                      "You're viewing as ${_courseType == 'unknown' ? 'a' : _courseType} course student",
                       style: const TextStyle(fontSize: 16, color: Colors.grey),
                     ),
                   ],
@@ -88,65 +105,79 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   icon: Icons.calendar_today,
                   title: "Timetable",
                   color: Colors.blue,
-                  onTap: () {
-                    // TODO: Navigate to Timetable screen
-                  },
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const TimetableScreen()),
+                  ),
                 ),
                 _buildDashboardCard(
                   icon: Icons.grade,
                   title: "Results",
                   color: Colors.green,
-                  onTap: () {
-                    // TODO: Navigate to Results screen
-                  },
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ResultsScreen()),
+                  ),
                 ),
                 _buildDashboardCard(
                   icon: Icons.book,
-                  title: _courseType == "short" ? "Published Courses" : "Course Modules",
+                  title: isShortCourse ? "Published Courses" : "Course Modules",
                   color: Colors.orange,
                   onTap: () {
-                    // TODO: Courses / Modules screen
+                    // For now we use the same screen → later you can split
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ModuleDetailScreen(module: currentModules[index])),
+                    );
                   },
                 ),
-                _buildDashboardCard(
-                  icon: Icons.attach_money,
-                  title: "Payments",
-                  color: Colors.purple,
-                  show: _courseType == "long", // only for long course
-                  onTap: () {
-                    // TODO: Payments screen
-                  },
-                ),
-                _buildDashboardCard(
-                  icon: Icons.how_to_reg,
-                  title: "Apply / Register",
-                  color: Colors.teal,
-                  show: _courseType == "short", // more for short course
-                  onTap: () {
-                    // TODO: Apply screen
-                  },
-                ),
+                if (isLongCourse)
+                  _buildDashboardCard(
+                    icon: Icons.attach_money,
+                    title: "Payments",
+                    color: Colors.purple,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const PaymentDetailsScreen()),
+                    ),
+                  ),
+                if (isShortCourse)
+                  _buildDashboardCard(
+                    icon: Icons.how_to_reg,
+                    title: "Apply / Register",
+                    color: Colors.teal,
+                    onTap: () {
+                      // TODO: Create and navigate to Apply / Published Courses screen
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Apply feature coming soon")),
+                      );
+                    },
+                  ),
                 _buildDashboardCard(
                   icon: Icons.person_outline,
                   title: "Profile",
                   color: Colors.indigo,
-                  onTap: () {
-                    // TODO: Profile screen
-                  },
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                  ),
                 ),
               ],
             ),
 
             const SizedBox(height: 24),
 
-            // Optional: Upcoming events or quick links
+            // Announcements / Quick Links
             Card(
               child: ListTile(
                 leading: const Icon(Icons.notifications_active, color: Colors.red),
                 title: const Text("Check for new announcements"),
                 trailing: const Icon(Icons.arrow_forward_ios),
                 onTap: () {
-                  // TODO: Announcements or notifications
+                  // TODO: Announcements screen or dialog
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Announcements coming soon")),
+                  );
                 },
               ),
             ),
@@ -162,9 +193,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ],
         selectedItemColor: const Color(0xFF003087),
         unselectedItemColor: Colors.grey,
-        currentIndex: 0, // Home
+        currentIndex: 0,
         onTap: (index) {
-          // TODO: Handle navigation
+          // You can implement full navigation here later (e.g. using go_router or indexed stack)
+          if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ProfileScreen()),
+            );
+          }
+          // other indices can be implemented similarly
         },
       ),
     );
@@ -174,11 +212,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     required IconData icon,
     required String title,
     required Color color,
-    VoidCallback? onTap,
-    bool show = true,
+    required VoidCallback onTap,
   }) {
-    if (!show) return const SizedBox.shrink();
-
     return GestureDetector(
       onTap: onTap,
       child: Card(
@@ -195,6 +230,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 title,
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
